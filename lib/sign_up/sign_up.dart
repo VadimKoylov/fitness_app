@@ -1,15 +1,17 @@
+import 'package:fitness_app/request/request.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:fitness_app/news/news.dart';
 
 class SignUp extends StatefulWidget {
   @override
   State<StatefulWidget> createState() {
-    return SignUpState();
+    return _SignUpState();
   }
 }
 
-class SignUpState extends State<SignUp> {
+class _SignUpState extends State<SignUp> {
 
   bool _isButtonEnabled = false;
 
@@ -19,7 +21,7 @@ class SignUpState extends State<SignUp> {
   bool checkConditions() {
     String nickname = _nicknameController.value.text;
     String password = _passwordController.value.text;
-    if (nickname.isNotEmpty && password.isNotEmpty)
+    if (nickname.isNotEmpty && password.isNotEmpty && (password.length >= 3) )
       {
         return true;
       } else {
@@ -29,13 +31,22 @@ class SignUpState extends State<SignUp> {
 
   void startNewsPage() {
     FocusScope.of(context).unfocus();
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text("Тост"),
-    ));
+
     if (checkConditions()) {
+      Request request = new Request();
+      Future<String> token = request.getToken();
 
+      token.then((value) {
+        if (value == "Bad connection") {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+              content: Text("Не удалось подключиться"),
+          ));
+        } else {
+          Navigator.push(context,
+              MaterialPageRoute(builder: (context) => News(value)));
+        }
+      });
     }
-
   }
 
   @override
@@ -78,7 +89,7 @@ class SignUpState extends State<SignUp> {
   Widget _autarization(BuildContext context) {
     return Container(
       padding: EdgeInsets.only(left: 16,right: 16, top: 137),
-      height: 450,
+      height: 570,
       color: Colors.transparent,
       child: Container(
         decoration: BoxDecoration(
@@ -90,28 +101,43 @@ class SignUpState extends State<SignUp> {
             bottomRight: const Radius.circular(40)
           )
           ),
-        child:
-            Container(
+          child: Container(
               padding: EdgeInsets.only(top: 48, left: 30, right: 30),
               child: Column(
                 children: [
-                  TextField(
-                    style: TextStyle(fontSize: 14),
-                    decoration: InputDecoration(
-                      labelText: "Nickname",
+                  Container(
+                    alignment: Alignment.centerLeft,
+                    child: Text("Nickname",
+                      style: TextStyle(color: const Color(0xFFCED0D5),
+                          fontSize: 12, fontFamily: 'Roboto'),
                     ),
+                  ),
+
+                  TextField(
+                    style: TextStyle(color: const Color(0xFF252627),
+                    fontFamily: 'Roboto', fontSize: 14),
                     controller: _nicknameController,
                     inputFormatters: [
                       FilteringTextInputFormatter.allow(RegExp('[a-zA-z]'))
                     ],
                   ),
 
+                  Container(
+                    alignment: Alignment.centerLeft,
+                    padding: EdgeInsets.only(top: 28),
+                    child: Text("Password",
+                      style: TextStyle(color: const Color(0xFFCED0D5),
+                          fontSize: 12, fontFamily: 'Roboto'),
+                    ),
+                  ),
+
                   TextField(
                     obscureText: _isHidden,
-                    style: TextStyle(fontSize: 14),
+                    obscuringCharacter: "*",
+                    style: TextStyle(color: const Color(0xFF252627),
+                        fontFamily: 'Roboto', fontSize: 14),
                     controller: _passwordController,
                     decoration: InputDecoration(
-                      labelText: "Password",
                       suffixIcon: IconButton(
                         icon: Icon(
                             _isHidden
@@ -134,6 +160,7 @@ class SignUpState extends State<SignUp> {
 
                   Container(
                     padding: EdgeInsets.only(top: 44),
+                    width: double.infinity,
                     child: Container(
                         decoration: BoxDecoration(
                             borderRadius: BorderRadius.all(const Radius.circular(3)),
@@ -156,6 +183,37 @@ class SignUpState extends State<SignUp> {
                         )
                     ),
                   ),
+
+                  Container(
+                    padding: EdgeInsets.only(top: 30),
+                    height: 51,
+                    alignment: Alignment.centerLeft,
+                    child: Text("Регистрируясь вы принимаете наши условия:",
+                      style: TextStyle(color: const Color(0xFF4D545C),
+                        fontSize: 12, fontFamily: 'Roboto'),
+                    ),
+                  ),
+
+                  Container(
+                    padding: EdgeInsets.only(top: 1),
+                    height: 19,
+                    alignment: Alignment.centerLeft,
+                    child: Text("политику использования данных",
+                      style: TextStyle(color: const Color(0xFF0290E0),
+                          fontSize: 12, fontFamily: 'Roboto',
+                        decoration: TextDecoration.underline),
+                    ),
+                  ),
+
+                  Container(
+                    padding: EdgeInsets.only(top: 1),
+                    alignment: Alignment.centerLeft,
+                    child: Text("политику в отношении файлов cookie",
+                      style: TextStyle(color: const Color(0xFF0290E0),
+                          fontSize: 12, fontFamily: 'Roboto',
+                          decoration: TextDecoration.underline),
+                    ),
+                  )
                 ],
               ),
             )
