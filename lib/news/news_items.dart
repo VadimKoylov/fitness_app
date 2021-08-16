@@ -1,40 +1,38 @@
-import 'package:fitness_app/request/request.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'news_data.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
+import '../models/news_data.dart';
+import 'news_items_logic.dart';
 
-class NewsItems extends StatefulWidget{
-
+class NewsItems extends StatefulWidget {
   @override
-  State<StatefulWidget> createState(){
+  State<StatefulWidget> createState() {
     return NewsItemsState();
   }
 }
 
 class NewsItemsState extends State<NewsItems> {
-
-  List<NewsData> currentNews = [];
-  List<bool> buttonLike = [];
+  final newsItemsLogic = getLogicStore;
 
   @override
   Widget build(BuildContext context) {
-    return _listNews();
-  }
-
-  Widget _listNews(){
-    return Container(
-      color: const Color(0xFFFFFFFF),
-      child: currentNews.length != 0
-          ? ListView.builder( shrinkWrap: true,
-          itemCount: currentNews.length,
-          itemBuilder: (context, i) {
-            return _cardNews(currentNews[i], i);
-          })
-          : CircularProgressIndicator()
+    return Observer(
+      builder: (_) => Container(
+        color: const Color(0xFFFFFFFF),
+        child: newsItemsLogic.currentNews.length != 0
+            ? ListView.builder(
+                shrinkWrap: true,
+                itemCount: newsItemsLogic.currentNews.length,
+                itemBuilder: (context, i) {
+                  return _cardNews(newsItemsLogic.currentNews[i], i);
+                },
+              )
+            : CircularProgressIndicator(),
+      ),
     );
   }
 
-  Widget _cardNews(NewsData newsData, int likeNumber){
+  Widget _cardNews(NewsData newsData, int likeNumber) {
     return Card(
       margin: EdgeInsets.only(left: 17, top: 20, right: 15),
       elevation: 2,
@@ -43,8 +41,8 @@ class NewsItemsState extends State<NewsItems> {
           topLeft: const Radius.circular(40),
           topRight: const Radius.circular(4),
           bottomLeft: const Radius.circular(4),
-          bottomRight: const Radius.circular(40)
-        )
+          bottomRight: const Radius.circular(40),
+        ),
       ),
       child: Container(
         child: Column(
@@ -53,13 +51,20 @@ class NewsItemsState extends State<NewsItems> {
             Row(
               children: [
                 Image(
-                    image: AssetImage("image/photo.png")),
+                  image: AssetImage("image/photo.png"),
+                ),
                 Container(
                   padding: EdgeInsets.only(left: 18),
                   child: Text(
-                    newsData.firstName + " " + newsData.lastName,
-                  style: TextStyle(color: const Color(0xFF252627),
-                  fontSize: 16, fontFamily: 'Roboto'),),
+                    newsData.firstName.toString() +
+                        " " +
+                        newsData.lastName.toString(),
+                    style: TextStyle(
+                      color: const Color(0xFF252627),
+                      fontSize: 16,
+                      fontFamily: 'Roboto',
+                    ),
+                  ),
                 )
               ],
             ),
@@ -68,9 +73,14 @@ class NewsItemsState extends State<NewsItems> {
                 Container(
                   padding: EdgeInsets.only(left: 14, top: 13, right: 14),
                   width: MediaQuery.of(context).size.width * 0.8,
-                  child: Text(newsData.caption!,
-                  style: TextStyle(color: const Color(0xFF4D545C),
-                    fontSize: 16, fontFamily: 'Roboto')),
+                  child: Text(
+                    newsData.caption.toString(),
+                    style: TextStyle(
+                      color: const Color(0xFF4D545C),
+                      fontSize: 16,
+                      fontFamily: 'Roboto',
+                    ),
+                  ),
                 )
               ],
             ),
@@ -80,21 +90,27 @@ class NewsItemsState extends State<NewsItems> {
                   padding: EdgeInsets.only(bottom: 13, left: 16),
                   child: IconButton(
                     icon: Icon(Icons.favorite_outlined),
-                    color: buttonLike[likeNumber]
-                      ? const Color(0xFFD1414F)
+                    color: newsItemsLogic.buttonLike[likeNumber]
+                        ? const Color(0xFFD1414F)
                         : const Color(0xFFCED0D5),
                     onPressed: () {
                       setState(() {
-                        buttonLike[likeNumber] = !buttonLike[likeNumber];
+                        newsItemsLogic.buttonLike[likeNumber] =
+                            !newsItemsLogic.buttonLike[likeNumber];
                       });
                     },
                   ),
                 ),
                 Container(
                   padding: EdgeInsets.only(bottom: 13),
-                  child: Text("28",
-                    style: TextStyle(color: const Color(0xFFCED0D5),
-                        fontFamily: 'Roboto', fontSize: 17),)
+                  child: Text(
+                    "28",
+                    style: TextStyle(
+                      color: const Color(0xFFCED0D5),
+                      fontFamily: 'Roboto',
+                      fontSize: 17,
+                    ),
+                  ),
                 ),
                 Container(
                   padding: EdgeInsets.only(bottom: 13, left: 23),
@@ -103,13 +119,18 @@ class NewsItemsState extends State<NewsItems> {
                   ),
                 ),
                 Container(
-                    padding: EdgeInsets.only(bottom: 13, left: 9),
-                    child: Text("12",
-                      style: TextStyle(color: const Color(0xFFCED0D5),
-                          fontFamily: 'Roboto', fontSize: 17),)
+                  padding: EdgeInsets.only(bottom: 13, left: 9),
+                  child: Text(
+                    "12",
+                    style: TextStyle(
+                      color: const Color(0xFFCED0D5),
+                      fontFamily: 'Roboto',
+                      fontSize: 17,
+                    ),
+                  ),
                 ),
               ],
-            )
+            ),
           ],
         ),
       ),
@@ -118,33 +139,9 @@ class NewsItemsState extends State<NewsItems> {
 
   @override
   void initState() {
-    if (currentNews.isEmpty) {
-      getNews();
+    if (newsItemsLogic.currentNews.isEmpty) {
+      newsItemsLogic.getNews();
     }
     super.initState();
-  }
-
-  void getNews() {
-    Request request = new Request();
-    Future<String> token = request.getToken();
-
-    token.then((value) {
-      Future<List<NewsData>> news = request.getNews(value);
-      news.then((value){
-        setState(() {
-          currentNews = value;
-          buttonLike = List.filled(currentNews.length, false);
-          overrideNews();
-        });
-      });
-    });
-  }
-
-  void overrideNews() {
-    for (NewsData newsData in currentNews) {
-      if (newsData.caption == null) {
-        newsData.caption = " ";
-      }
-    }
   }
 }
