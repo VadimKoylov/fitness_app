@@ -4,40 +4,50 @@ import 'package:fitness_app/models/news_data.dart';
 class Api {
   Dio dio = new Dio();
   static const String BASE_URL = "https://app.ferfit.club/api/";
-  static const String TOKEN =
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NTksImlhdCI6MTYyMDQ5MTYxNCwiZXhwIjoxMDAxNjIwNDkxNjE0fQ.zGqmT0dH2bUMkG5DltUciML5CCXDbXsdO3p5a6AH5Z8";
+  static const String BASE_TOKEN = "";
 
   Api() {
     dio.options.headers['content-Type'] = 'application/json';
     dio.interceptors.add(
       InterceptorsWrapper(
         onRequest: (options, handler) {
+          print(
+              '_______________________${DateTime.now()}______________________');
+          print('REQUEST[${options.method}]');
+          print('PATH: ${options.path}');
+          print('');
 
           return handler.next(options);
         },
         onResponse: (response, handler) {
-          if(response.statusCode == 200) {
-            print(response.statusCode);
-            return response.data['result']['access'];
-          }
+          print(
+              '_______________________${DateTime.now()}______________________');
+          print('RESPONSE[${response.statusCode}]');
+          print('PATH: ${response.requestOptions.path}');
+          print('');
           return handler.next(response);
         },
         onError: (DioError e, handler) {
-          print(e.message);
+          print(
+              '_______________________${DateTime.now()}______________________');
+          print('ERROR[${e.response?.statusCode}]');
+          print('PATH: ${e.requestOptions.path}');
+          print('');
           return handler.next(e);
         },
       ),
     );
   }
 
-  Future<void> refreshTokens() async {
+  Future<String> refreshTokens() async {
     try {
-      dio.options.headers["authorization"] = "bearer " + TOKEN;
+      dio.options.headers["authorization"] =
+          "bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NTksImlhdCI6MTYyMDQ5MTYxNCwiZXhwIjoxMDAxNjIwNDkxNjE0fQ.zGqmT0dH2bUMkG5DltUciML5CCXDbXsdO3p5a6AH5Z8";
       var myConnection = await dio.post(BASE_URL + 'auth/refresh-tokens');
-      if (myConnection.statusCode == 200) {
-
-      }
-    } catch (e) {}
+      return myConnection.data['result']['access'];
+    } catch (e) {
+      return (e.toString());
+    }
   }
 
   Future<List<NewsData>> getNews(String token) async {

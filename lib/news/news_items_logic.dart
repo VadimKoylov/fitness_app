@@ -23,8 +23,11 @@ abstract class _NewsItemsLogic with Store {
   List<NewsData> currentNews = [];
 
   void getNews() async {
-    String token = Api().refreshTokens().toString();
-    print(token);
+    Future<String> token = Api().refreshTokens();
+    token.then((value) => getCurrentNews(value));
+  }
+
+  void getCurrentNews(String token) async {
     currentNews = await Api().getNews(token);
     buttonLike = List.filled(currentNews.length, false);
   }

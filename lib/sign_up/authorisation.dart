@@ -1,5 +1,4 @@
 import 'package:fitness_app/news/news.dart';
-import 'package:fitness_app/request/api.dart';
 import 'package:fitness_app/sign_up/sign_up_logic.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -115,11 +114,11 @@ class Authorisation extends StatelessWidget {
                       ),
                       onPressed: signUpLogic.isButtonEnabled
                           ? () {
-                              Future<void> token = Api().refreshTokens();
+                              //Api().refreshTokens();
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => News(token.toString()),
+                                  builder: (context) => News(),
                                 ),
                               );
                             }

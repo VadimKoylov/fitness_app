@@ -18,14 +18,35 @@ class NewsItemsState extends State<NewsItems> {
   Widget build(BuildContext context) {
     return Observer(
       builder: (_) => Container(
-        color: const Color(0xFFFFFFFF),
+        color: Colors.white,
         child: newsItemsLogic.currentNews.length != 0
-            ? ListView.builder(
-                shrinkWrap: true,
-                itemCount: newsItemsLogic.currentNews.length,
-                itemBuilder: (context, i) {
-                  return _cardNews(newsItemsLogic.currentNews[i], i);
-                },
+            ? CustomScrollView(
+                slivers: <Widget>[
+                  SliverAppBar(
+                    expandedHeight: 56,
+                    backgroundColor: Colors.transparent,
+                    flexibleSpace: FlexibleSpaceBar(
+                      title: Text(
+                        "News",
+                        style: TextStyle(
+                          color: const Color(0xFF252627),
+                          fontSize: 18,
+                        ),
+                      ),
+                    ),
+                  ),
+                  SliverList(
+                    delegate: SliverChildBuilderDelegate(
+                      (BuildContext context, int index) {
+                        return _cardNews(
+                          newsItemsLogic.currentNews[index],
+                          index,
+                        );
+                      },
+                      childCount: newsItemsLogic.currentNews.length,
+                    ),
+                  ),
+                ],
               )
             : CircularProgressIndicator(),
       ),

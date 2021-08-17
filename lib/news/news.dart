@@ -4,10 +4,6 @@ import 'package:flutter/material.dart';
 import 'news_items.dart';
 
 class News extends StatefulWidget {
-  final String token;
-
-  News(this.token);
-
   @override
   State<StatefulWidget> createState() {
     return _NewsState();
@@ -46,15 +42,7 @@ class _NewsState extends State<News> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: PreferredSize(
-        preferredSize: Size.fromHeight(56.0),
-        child: AppBar(
-            title: _textNews(),
-            backgroundColor: Colors.white,
-            automaticallyImplyLeading: false,
-            elevation: 0.0),
-      ),
-      body: Center(child: _listPages.elementAt(_currentTab)),
+      body: _listPages.elementAt(_currentTab),
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
@@ -82,22 +70,6 @@ class _NewsState extends State<News> {
         selectedItemColor: const Color(0xFFD1414F),
         unselectedItemColor: const Color(0xFFCED0D5),
         onTap: _selectTab,
-      ),
-    );
-  }
-
-  Widget _textNews() {
-    return Padding(
-      padding: EdgeInsets.only(top: 17, left: 58),
-      child: Align(
-        alignment: Alignment.topLeft,
-        child: Text(
-          "News",
-          style: TextStyle(
-            color: const Color(0xFF252627),
-            fontSize: 18,
-          ),
-        ),
       ),
     );
   }
